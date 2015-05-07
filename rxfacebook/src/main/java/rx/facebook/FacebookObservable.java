@@ -135,7 +135,8 @@ public class FacebookObservable {
                 @Override
                 public void onComplete(List<Photo> photos) {
                     sub.onNext(photos);
-                    sub.onCompleted();
+                    if (hasNext()) getNext();
+                    else sub.onCompleted();
                 }
 
                 @Override
@@ -190,7 +191,6 @@ public class FacebookObservable {
     /**
      *
      * @param entityId Profile Event Group Page
-     * @param entityId
      * @return
      */
     public static Observable<Post> getPosts(Activity activity, String entityId) {
@@ -243,14 +243,14 @@ public class FacebookObservable {
             return Observable.<List<Post>>create(sub -> {
                 simpleFacebook.getPosts(finalType, new OnPostsListener() {
                     @Override
-                    public void onException(Throwable throwable) {
-                        sub.onError(throwable);
-                    }
-                    @Override
                     public void onComplete(List<Post> posts) {
                         sub.onNext(posts);
                         if (hasNext()) getNext();
                         else sub.onCompleted();
+                    }
+                    @Override
+                    public void onException(Throwable throwable) {
+                        sub.onError(throwable);
                     }
                 });
             }).flatMap(Observable::from);
@@ -260,14 +260,14 @@ public class FacebookObservable {
         return Observable.<List<Post>>create(sub -> {
             simpleFacebook.getPosts(entityId, finalType, new OnPostsListener() {
                 @Override
-                public void onException(Throwable throwable) {
-                    sub.onError(throwable);
-                }
-                @Override
                 public void onComplete(List<Post> posts) {
                     sub.onNext(posts);
                     if (hasNext()) getNext();
                     else sub.onCompleted();
+                }
+                @Override
+                public void onException(Throwable throwable) {
+                    sub.onError(throwable);
                 }
             });
         }).flatMap(Observable::from);
@@ -306,6 +306,150 @@ public class FacebookObservable {
                     sub.onNext(attachment);
                     sub.onCompleted();
                 }
+                @Override
+                public void onException(Throwable throwable) {
+                    sub.onError(throwable);
+                }
+            });
+        });
+    }
+
+    public static Observable<Account> getAccounts(Activity activity) {
+        return getAccounts(SimpleFacebook.getInstance(activity));
+    }
+
+    public static Observable<Account> getAccounts(SimpleFacebook simpleFacebook) {
+        return Observable.<List<Account>>create(sub -> {
+            simpleFacebook.getAccounts(new OnAccountsListener() {
+                @Override
+                public void onComplete(List<Account> accounts) {
+                    sub.onNext(accounts);
+                    if (hasNext()) getNext();
+                    else sub.onCompleted();
+                }
+                @Override
+                public void onException(Throwable throwable) {
+                    sub.onError(throwable);
+                }
+            });
+        }).flatMap(Observable::from);
+    }
+
+    public static Observable<Album> getAlbums(Activity activity) {
+        return getAlbums(activity, null);
+    }
+
+    /**
+     *
+     * @param activity
+     * @param entityId Profile Page
+     * @return
+     */
+    public static Observable<Album> getAlbums(Activity activity, String entityId) {
+        return getAlbums(SimpleFacebook.getInstance(activity), entityId);
+    }
+
+    public static Observable<Album> getAlbums(SimpleFacebook simpleFacebook) {
+        return getAlbums(simpleFacebook, null);
+    }
+
+    /**
+     *
+     * @param activity
+     * @param entityId Profile Page
+     * @return
+     */
+    public static Observable<Album> getAlbums(SimpleFacebook simpleFacebook, String entityId) {
+        if (entityId == null) {
+            return Observable.<List<Album>>create(sub -> {
+                simpleFacebook.getAlbums(new OnAlbumsListener() {
+                    @Override
+                    public void onComplete(List<Album> albums) {
+                        sub.onNext(albums);
+                        if (hasNext()) getNext();
+                        else sub.onCompleted();
+                    }
+
+                    @Override
+                    public void onThinking() {
+                        // TODO
+                    }
+
+                    @Override
+                    public void onFail(String reason) {
+                        sub.onError(new RuntimeException(reason));
+                    }
+
+                    @Override
+                    public void onException(Throwable throwable) {
+                        sub.onError(throwable);
+                    }
+                });
+            }).flatMap(Observable::from);
+        }
+
+        return Observable.<List<Album>>create(sub -> {
+            simpleFacebook.getAlbums(entityId, new OnAlbumsListener() {
+                @Override
+                public void onComplete(List<Album> albums) {
+                    sub.onNext(albums);
+                    if (hasNext()) getNext();
+                    else sub.onCompleted();
+                }
+
+                @Override
+                public void onThinking() {
+                    // TODO
+                }
+
+                @Override
+                public void onFail(String reason) {
+                    sub.onError(new RuntimeException(reason));
+                }
+
+                @Override
+                public void onException(Throwable throwable) {
+                    sub.onError(throwable);
+                }
+            });
+        }).flatMap(Observable::from);
+    }
+
+    /*
+    public static Observable<Album> getAlbum(Activity activity) {
+        return getAlbum(activity, null);
+    }
+    */
+
+    public static Observable<Album> getAlbum(Activity activity, String albumId) {
+        return getAlbum(SimpleFacebook.getInstance(activity), albumId);
+    }
+
+    /*
+    public static Observable<Album> getAlbum(SimpleFacebook simpleFacebook) {
+        return getAlbum(simpleFacebook, null);
+    }
+    */
+
+    public static Observable<Album> getAlbum(SimpleFacebook simpleFacebook, String albumId) {
+        return Observable.create(sub -> {
+            simpleFacebook.getAlbum(albumId, new OnAlbumListener() {
+                @Override
+                public void onComplete(Album album) {
+                    sub.onNext(album);
+                    sub.onCompleted();
+                }
+
+                @Override
+                public void onThinking() {
+                    // TODO
+                }
+
+                @Override
+                public void onFail(String reason) {
+                    sub.onError(new RuntimeException(reason));
+                }
+
                 @Override
                 public void onException(Throwable throwable) {
                     sub.onError(throwable);
