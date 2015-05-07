@@ -13,32 +13,68 @@ Facebook in RxJava. Based on android-simple-facebook.
 ```java
 FacebookObservable.login(activity).subscribe();
 FacebookObservable.logout(activity).subscribe();
+```
 
+```java
 Observable<Photo> photos = FacebookObservable.getPhotos(activity);
 // entify: Profile Album Event Page
 Observable<Photo> photos = FacebookObservable.getPhotos(entityId, activity);
+```
+
+```java
 Observable<Post> posts = FacebookObservable.getPosts(activity);
 // entity: Profile Event Group Page
 Observable<Post> posts = FacebookObservable.getPosts(entifyId, activity);
 // status: links, statuses, posts or tagged
 Observable<Post> posts = FacebookObservable.getPosts(entifyId, PostType.STATUSES, activity);
+```
+
+```java
 Observable<Account> accounts = FacebookObservable.getAccounts(activity);
+
+```
+
+```java
 Observable<Album> albums = FacebookObservable.getAlbums(activity);
 // entity: Profile Page
 Observable<Album> albums = FacebookObservable.getAlbums(entityId, activity);
 Observable<Album> album = FacebookObservable.getAlbum(albumId, activity);
+
+```
+
+```java
 // entity: Album Checkin Comment Photo Post Video
 Observable<Comment> comments = FacebookObservable.getComments(entityId, activity);
 Observable<Comment> comment = FacebookObservable.getComments(commentId, activity);
+
+```
+
+```java
 Observable<Event> events = FacebookObservable.getEvents(EventDecision.ATTENDING, activity);
 // entity: Profile, Page, Group
 Observable<Event> events = FacebookObservable.getEvents(entityId, EventDecision.ATTENDING, activity);
+
+```
+
+```java
 Observable<FamilyUser> familyUsers = FacebookObservable.getFamily(activity);
 Observable<FamilyUser> familyUsers = FacebookObservable.getFamily(profileId, activity);
+
+```
+
+```java
 Observable<Profile> friends = FacebookObservable.getFriends(activity);
+
+```
+
+```java
 Observable<Group> groups = FacebookObservable.getGroups(activity);
 // entity: Profile
 Observable<Group> groups = FacebookObservable.getGroups(entityId, activity);
+
+```
+
+```java
 // entity: Album Checkin Comment Photo Post Video
 Observable<Like> likes = FacebookObservable.getLikes(entityId, activity);
 ```
