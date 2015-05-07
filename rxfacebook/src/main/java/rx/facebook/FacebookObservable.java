@@ -89,11 +89,47 @@ public class FacebookObservable {
         });
     }
 
+    public static Observable<Photo> getPhotos(Activity activity) {
+        return getPhotos(activity, null);
+    }
+
     public static Observable<Photo> getPhotos(Activity activity, String entityId) {
         return getPhotos(SimpleFacebook.getInstance(activity), entityId);
     }
 
+    public static Observable<Photo> getPhotos(SimpleFacebook simpleFacebook) {
+        return getPhotos(simpleFacebook, null);
+    }
+
     public static Observable<Photo> getPhotos(SimpleFacebook simpleFacebook, String entityId) {
+        if (entityId == null) {
+            return Observable.<List<Photo>>create(sub -> {
+                simpleFacebook.getPhotos(new OnPhotosListener() {
+                    @Override
+                    public void onComplete(List<Photo> photos) {
+                        sub.onNext(photos);
+                        if (hasNext()) getNext();
+                        else sub.onCompleted();
+                    }
+
+                    @Override
+                    public void onThinking() {
+                        // TODO
+                    }
+
+                    @Override
+                    public void onFail(String reason) {
+                        sub.onError(new RuntimeException(reason));
+                    }
+
+                    @Override
+                    public void onException(Throwable throwable) {
+                        sub.onError(throwable);
+                    }
+                });
+            }).flatMap(Observable::from);
+        }
+
         return Observable.<List<Photo>>create(sub -> {
             simpleFacebook.getPhotos(entityId, new OnPhotosListener() {
                 @Override
@@ -120,36 +156,26 @@ public class FacebookObservable {
         }).flatMap(Observable::from);
     }
 
-    public static Observable<Photo> getPhotos(Activity activity) {
-        return getPhotos(SimpleFacebook.getInstance(activity));
+    public static Observable<Photo> getPhoto(Activity activity, Attachment attachment) {
+        return getPhoto(SimpleFacebook.getInstance(activity), attachment);
     }
 
-    public static Observable<Photo> getPhotos(SimpleFacebook simpleFacebook) {
-        return Observable.<List<Photo>>create(sub -> {
-            simpleFacebook.getPhotos(new OnPhotosListener() {
-                @Override
-                public void onComplete(List<Photo> photos) {
-                    sub.onNext(photos);
-                    if (hasNext()) getNext();
-                    else sub.onCompleted();
-                }
+    public static Observable<Photo> getPhoto(SimpleFacebook simpleFacebook, Attachment attachment) {
+        if (TextUtils.isEmpty(attachment.getTarget().getId())) return Observable.empty();
 
+        return Observable.create(sub -> {
+            simpleFacebook.getPhoto(attachment.getTarget().getId(), new OnPhotoListener() {
                 @Override
-                public void onThinking() {
-                    // TODO
+                public void onComplete(Photo photo) {
+                    sub.onNext(photo);
+                    sub.onCompleted();
                 }
-
-                @Override
-                public void onFail(String reason) {
-                    sub.onError(new RuntimeException(reason));
-                }
-
                 @Override
                 public void onException(Throwable throwable) {
                     sub.onError(throwable);
                 }
             });
-        }).flatMap(Observable::from);
+        });
     }
 
     /**
@@ -189,22 +215,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Post> getPosts(Activity activity, String entityId, Post.PostType type) {
-        SimpleFacebook simpleFacebook = SimpleFacebook.getInstance(activity);
-
-        if (type == null && entityId == null) {
-            return getPosts(simpleFacebook);
-        }
-        if (type != null && entityId != null) {
-            return getPosts(simpleFacebook, entityId, type);
-        }
-        if (entityId != null) {
-            return getPosts(simpleFacebook, entityId);
-        }
-        if (type != null) {
-            return getPosts(simpleFacebook, type);
-        }
-
-        return getPosts(simpleFacebook, entityId, type);
+        return getPosts(SimpleFacebook.getInstance(activity), entityId, type);
     }
 
     /**
@@ -214,7 +225,7 @@ public class FacebookObservable {
      * @return Observable&lt;Post&gt;
      */
     public static Observable<Post> getPosts(SimpleFacebook simpleFacebook, String entityId) {
-        return getPosts(simpleFacebook, entityId, Post.PostType.POSTS);
+        return getPosts(simpleFacebook, entityId, null);
     }
 
     /**
@@ -225,8 +236,29 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Post> getPosts(SimpleFacebook simpleFacebook, String entityId, Post.PostType type) {
+        if (type == null) type = Post.PostType.POSTS;
+        final Post.PostType finalType = type;
+
+        if (entityId == null) {
+            return Observable.<List<Post>>create(sub -> {
+                simpleFacebook.getPosts(finalType, new OnPostsListener() {
+                    @Override
+                    public void onException(Throwable throwable) {
+                        sub.onError(throwable);
+                    }
+                    @Override
+                    public void onComplete(List<Post> posts) {
+                        sub.onNext(posts);
+                        if (hasNext()) getNext();
+                        else sub.onCompleted();
+                    }
+                });
+            }).flatMap(Observable::from);
+        }
+
+        // assert(finalType != null && entityId != null);
         return Observable.<List<Post>>create(sub -> {
-            simpleFacebook.getPosts(entityId, type, new OnPostsListener() {
+            simpleFacebook.getPosts(entityId, finalType, new OnPostsListener() {
                 @Override
                 public void onException(Throwable throwable) {
                     sub.onError(throwable);
@@ -247,7 +279,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Post> getPosts(SimpleFacebook simpleFacebook) {
-        return getPosts(simpleFacebook, Post.PostType.POSTS);
+        return getPosts(simpleFacebook, (Post.PostType) null);
     }
 
     /**
@@ -257,20 +289,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Post> getPosts(SimpleFacebook simpleFacebook, Post.PostType type) {
-        return Observable.<List<Post>>create(sub -> {
-            simpleFacebook.getPosts(type, new OnPostsListener() {
-                @Override
-                public void onException(Throwable throwable) {
-                    sub.onError(throwable);
-                }
-                @Override
-                public void onComplete(List<Post> posts) {
-                    sub.onNext(posts);
-                    if (hasNext()) getNext();
-                    else sub.onCompleted();
-                }
-            });
-        }).flatMap(Observable::from);
+        return getPosts(simpleFacebook, null, null);
     }
 
     public static Observable<Attachment> getAttachment(Activity activity, Post post) {
@@ -279,33 +298,12 @@ public class FacebookObservable {
 
     public static Observable<Attachment> getAttachment(SimpleFacebook simpleFacebook, Post post) {
         if (TextUtils.isEmpty(post.getId())) return Observable.empty();
+
         return Observable.create(sub -> {
             simpleFacebook.getAttachment(post.getId(), new OnAttachmentListener() {
                 @Override
                 public void onComplete(Attachment attachment) {
                     sub.onNext(attachment);
-                    sub.onCompleted();
-                }
-                @Override
-                public void onException(Throwable throwable) {
-                    sub.onError(throwable);
-                }
-            });
-        });
-    }
-
-    public static Observable<Photo> getPhoto(Activity activity, Attachment attachment) {
-        return getPhoto(SimpleFacebook.getInstance(activity), attachment);
-    }
-
-    public static Observable<Photo> getPhoto(SimpleFacebook simpleFacebook, Attachment attachment) {
-        if (TextUtils.isEmpty(attachment.getTarget().getId())) return Observable.empty();
-
-        return Observable.create(sub -> {
-            simpleFacebook.getPhoto(attachment.getTarget().getId(), new OnPhotoListener() {
-                @Override
-                public void onComplete(Photo photo) {
-                    sub.onNext(photo);
                     sub.onCompleted();
                 }
                 @Override

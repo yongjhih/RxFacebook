@@ -23,6 +23,8 @@ getPhotos:
 Observable<Photo> photos = FacebookObservable.getPhotos(activity);
 // entify: Profile Album Event Page
 Observable<Photo> photos = FacebookObservable.getPhotos(activity, entityId);
+// Attachment
+Observable<Photo> photos = FacebookObservable.getPhoto(activity, attachement);
 ```
 
 getPosts:
@@ -33,6 +35,14 @@ Observable<Post> posts = FacebookObservable.getPosts(activity);
 Observable<Post> posts = FacebookObservable.getPosts(activity, entifyId);
 // status: links, statuses, posts or tagged
 Observable<Post> posts = FacebookObservable.getPosts(activity, entifyId, PostType.STATUSES);
+```
+
+getAttachments:
+
+```java
+Observable<Attachment> attachments = FacebookObservable.getPosts(activity, post);
+// entity: Post, ?
+Observable<Attachment> attachments = FacebookObservable.getPosts(activity, entifyId);
 ```
 
 getAccounts:
