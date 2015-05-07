@@ -1,0 +1,6 @@
+include ':rxfacebook'
+include ':rxfacebook-app'
+include ':android-simple-facebook:Simple Facebook'
+project(':android-simple-facebook:Simple Facebook').projectDir = new File(settingsDir, '../android-simple-facebook/Simple Facebook')
+include ':android-simple-facebook'
+project(':android-simple-facebook').projectDir = new File(settingsDir, '../android-simple-facebook')
