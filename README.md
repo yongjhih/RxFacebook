@@ -10,6 +10,39 @@ Facebook in RxJava. Based on android-simple-facebook.
 
 ## Usage
 
+```java
+FacebookObservable.login(activity).subscribe();
+FacebookObservable.logout(activity).subscribe();
+
+Observable<Photo> photos = FacebookObservable.getPhotos(activity);
+// entify: Profile Album Event Page
+Observable<Photo> photos = FacebookObservable.getPhotos(entityId, activity);
+Observable<Post> posts = FacebookObservable.getPosts(activity);
+// entity: Profile Event Group Page
+Observable<Post> posts = FacebookObservable.getPosts(entifyId, activity);
+// status: links, statuses, posts or tagged
+Observable<Post> posts = FacebookObservable.getPosts(entifyId, PostType.STATUSES, activity);
+Observable<Account> accounts = FacebookObservable.getAccounts(activity);
+Observable<Album> albums = FacebookObservable.getAlbums(activity);
+// entity: Profile Page
+Observable<Album> albums = FacebookObservable.getAlbums(entityId, activity);
+Observable<Album> album = FacebookObservable.getAlbum(albumId, activity);
+// entity: Album Checkin Comment Photo Post Video
+Observable<Comment> comments = FacebookObservable.getComments(entityId, activity);
+Observable<Comment> comment = FacebookObservable.getComments(commentId, activity);
+Observable<Event> events = FacebookObservable.getEvents(EventDecision.ATTENDING, activity);
+// entity: Profile, Page, Group
+Observable<Event> events = FacebookObservable.getEvents(entityId, EventDecision.ATTENDING, activity);
+Observable<FamilyUser> familyUsers = FacebookObservable.getFamily(activity);
+Observable<FamilyUser> familyUsers = FacebookObservable.getFamily(profileId, activity);
+Observable<Profile> friends = FacebookObservable.getFriends(activity);
+Observable<Group> groups = FacebookObservable.getGroups(activity);
+// entity: Profile
+Observable<Group> groups = FacebookObservable.getGroups(entityId, activity);
+// entity: Album Checkin Comment Photo Post Video
+Observable<Like> likes = FacebookObservable.getLikes(entityId, activity);
+```
+
 ## Installation
 
 ```gradle
