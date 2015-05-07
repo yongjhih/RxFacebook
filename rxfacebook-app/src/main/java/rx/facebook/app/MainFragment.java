@@ -22,6 +22,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.sromku.simple.fb.entities.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,6 @@ import rx.android.app.*;
 import rx.facebook.*;
 
 import android.support.v4.widget.SwipeRefreshLayout;
-import com.github.florent37.materialviewpager.*;
 
 public class MainFragment extends Fragment {
 
@@ -46,15 +46,7 @@ public class MainFragment extends Fragment {
     private Handler handler;
     private SwipeRefreshLayout.OnRefreshListener refresher;
 
-    private static final String ARG_SECTION_NUMBER = "section_number";
-
-    public static MainFragment newInstance(int sectionNumber) {
-        MainFragment fragment = new MainFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private ListRecyclerAdapter<Photo, PhotoViewHolder> listAdapter;
 
     public MainFragment() {
         handler = new Handler();
@@ -66,6 +58,18 @@ public class MainFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         ButterKnife.inject(this, view);
 
+        listAdapter = ListRecyclerAdapter.create();
+
+        listAdapter.createViewHolder(new Func2<ViewGroup, Integer, PhotoViewHolder>() {
+            @Override
+            public PhotoViewHolder call(@Nullable ViewGroup viewGroup, Integer position) {
+                return new PhotoViewHolder(inflater.inflate(R.layout.item_photo, viewGroup, false));
+            }
+        });
+
+        listView.setLayoutManager(new android.support.v7.widget.LinearLayoutManager(getActivity()));
+        listView.setAdapter(listAdapter);
+
         return view;
     }
 
@@ -73,25 +77,57 @@ public class MainFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        android.util.Log.d("RxFacebook", "getPhotos {");
-        AppObservable.bindFragment(this, FacebookObservable.getPhotos(getActivity()))
-            .subscribe(p -> {
-                android.util.Log.d("RxFacebook", "user: " + p.getFrom().getName());
-                android.util.Log.d("RxFacebook", "link: " + p.getLink());
-            }, e -> {
-                android.util.Log.d("RxFacebook", "getPhotos: e: " + e);
-            }, () -> {
-                android.util.Log.d("RxFacebook", "getPhotos: onCompleted");
-            });
-        android.util.Log.d("RxFacebook", "getPhotos }");
+        refresher = new SwipeRefreshLayout.OnRefreshListener() {
+            @Override public void onRefresh() {
+                loading.setRefreshing(true);
+                AppObservable.bindFragment(MainFragment.this, FacebookObservable.getPhotos(getActivity()))
+                        .doOnNext(p -> {
+                            android.util.Log.d("RxFacebook", "user: " + p.getFrom().getName());
+                            android.util.Log.d("RxFacebook", "link: " + p.getLink());
+                        })
+                        .toList()
+                        .subscribe(new Action1<List<Photo>>() {
+                            @Override
+                            public void call(final List<Photo> users) {
+                                loading.setRefreshing(false);
+                                handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        listAdapter.getList().clear();
+                                        listAdapter.getList().addAll(users);
+                                        listAdapter.notifyDataSetChanged();
+                                    }
+                                });
+                            }
+                        });
+            }
+        };
 
-        /*
-        FacebookObservable.getPosts(getActivity()).subscribe(p -> {
-            android.util.Log.d("RxFacebook", "name: " + p.getFrom().getName());
-            android.util.Log.d("RxFacebook", "message: " + p.getMessage()));
+        loading.setOnRefreshListener(refresher);
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                refresher.onRefresh();
+            }
         });
-        */
+    }
 
-        MaterialViewPagerHelper.registerRecyclerView(getActivity(), listView, null);
+    public static class PhotoViewHolder extends BindViewHolder<Photo> {
+        @InjectView(R.id.icon)
+        SimpleDraweeView icon;
+        @InjectView(R.id.text1)
+        TextView text1;
+
+        public PhotoViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.inject(this, itemView);
+        };
+
+        @Override
+        public void onBind(int position, Photo item) {
+            icon.setImageURI(Uri.parse(item.getImages().get(0).getSource()));
+            text1.setText(item.getFrom().getName());
+        }
     }
 }

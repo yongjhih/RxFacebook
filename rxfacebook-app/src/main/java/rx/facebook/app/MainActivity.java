@@ -18,24 +18,21 @@ import android.support.v7.widget.Toolbar;
 import butterknife.InjectView;
 import butterknife.ButterKnife;
 
+import com.ogaclejapan.smarttablayout.SmartTabLayout;
+import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
+import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
 import com.sromku.simple.fb.SimpleFacebook;
 
 import rx.facebook.FacebookObservable;
 
 import rx.android.app.*;
 
-import com.github.florent37.materialviewpager.*;
-
 public class MainActivity extends AppCompatActivity {
 
-    private ActionBarDrawerToggle mDrawerToggle;
-    private Toolbar toolbar;
-
-    @InjectView(R.id.materialViewPager)
-    MaterialViewPager mViewPager;
-
-    @InjectView(R.id.drawer_layout)
-    DrawerLayout mDrawer;
+    @InjectView(R.id.pager)
+    ViewPager mViewPager;
+    @InjectView(R.id.tab)
+    SmartTabLayout mTab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,63 +48,14 @@ public class MainActivity extends AppCompatActivity {
                 });
         }
 
-        setTitle("");
+        FragmentPagerItemAdapter adapter = new FragmentPagerItemAdapter(getSupportFragmentManager(), FragmentPagerItems.with(this)
+                .add("Photos", MainFragment.class)
+                .create());
 
-        toolbar = mViewPager.getToolbar();
+        mViewPager.setAdapter(adapter);
 
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-
-            final ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.setDisplayHomeAsUpEnabled(true);
-                actionBar.setDisplayShowHomeEnabled(true);
-                actionBar.setDisplayShowTitleEnabled(true);
-                actionBar.setDisplayUseLogoEnabled(false);
-                actionBar.setHomeButtonEnabled(true);
-            }
-        }
-
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawer, 0, 0);
-        mDrawer.setDrawerListener(mDrawerToggle);
-
-        mViewPager.getViewPager().setAdapter(new SimpleFragmentStatePagerAdapter(getSupportFragmentManager()));
-
-        mViewPager.getViewPager().setOffscreenPageLimit(mViewPager.getViewPager().getAdapter().getCount());
-        mViewPager.getPagerTitleStrip().setViewPager(mViewPager.getViewPager());
-    }
-
-    public class SimpleFragmentStatePagerAdapter extends FragmentStatePagerAdapter {
-
-        public SimpleFragmentStatePagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return MainFragment.newInstance(position + 1);
-        }
-
-        @Override
-        public int getCount() {
-            return 1;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            Locale l = Locale.getDefault();
-            switch (position) {
-                case 0:
-                    return getString(R.string.title_section1).toUpperCase(l);
-            }
-            return null;
-        }
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        mDrawerToggle.syncState();
+        mTab.setViewPager(mViewPager);
+        //mTab.setOnPageChangeListener(mPageChangeListener);
     }
 
     private SimpleFacebook mSimpleFacebook;
