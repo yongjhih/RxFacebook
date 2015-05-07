@@ -120,6 +120,10 @@ dependencies {
 }
 ```
 
+## TODO
+
+* Backpressure more posts/photos/comments
+
 ## LICENSE
 
 Copyright 2015 8tory, Inc.
