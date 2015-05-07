@@ -189,7 +189,22 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Post> getPosts(Activity activity, String entityId, Post.PostType type) {
-        return getPosts(SimpleFacebook.getInstance(activity), entityId, type);
+        SimpleFacebook simpleFacebook = SimpleFacebook.getInstance(activity);
+
+        if (type == null && entityId == null) {
+            return getPosts(simpleFacebook);
+        }
+        if (type != null && entityId != null) {
+            return getPosts(simpleFacebook, entityId, type);
+        }
+        if (entityId != null) {
+            return getPosts(simpleFacebook, entityId);
+        }
+        if (type != null) {
+            return getPosts(simpleFacebook, type);
+        }
+
+        return getPosts(simpleFacebook, entityId, type);
     }
 
     /**
