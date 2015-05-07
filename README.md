@@ -17,29 +17,6 @@ FacebookObservable.login(activity).subscribe();
 FacebookObservable.logout(activity).subscribe();
 ```
 
-* Get accounts
-* Get album/s
-* -Get requests-
-* -Get books-
-* Get comment/s-
-* Get events
-* Get family
-* Get friends
-* -Get games-
-* Get groups
-* Get likes
-* -Get movies-
-* -Get music-
-* -Get notifications-
-* -Get objects-
-* -Get page-
-* Get photos
-* Get posts
-* Get profile
-* -Get scores-
-* -Get television-
-* -Get videos-
-
 getPhotos:
 
 ```java
@@ -116,6 +93,18 @@ getLikes:
 // entity: Album Checkin Comment Photo Post Video
 Observable<Like> likes = FacebookObservable.getLikes(activity, entityId);
 ```
+
+* -Get requests-
+* -Get books-
+* -Get games-
+* -Get movies-
+* -Get music-
+* -Get notifications-
+* -Get objects-
+* -Get page-
+* -Get scores-
+* -Get television-
+* -Get videos-
 
 ## Installation
 
