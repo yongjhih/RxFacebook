@@ -9,19 +9,33 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 
 import butterknife.InjectView;
 import butterknife.ButterKnife;
 
 import com.sromku.simple.fb.SimpleFacebook;
+
 import rx.facebook.FacebookObservable;
 
 import rx.android.app.*;
 
+import com.github.florent37.materialviewpager.*;
+
 public class MainActivity extends AppCompatActivity {
 
-    @InjectView(R.id.pager)
-    ViewPager mViewPager;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private Toolbar toolbar;
+
+    @InjectView(R.id.materialViewPager)
+    MaterialViewPager mViewPager;
+
+    @InjectView(R.id.drawer_layout)
+    DrawerLayout mDrawer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,17 +46,40 @@ public class MainActivity extends AppCompatActivity {
 
         if (!mSimpleFacebook.isLogin()) {
             AppObservable.bindActivity(this, FacebookObservable.login(this))
-                    .subscribe(simpleFacebook -> {
-                        android.util.Log.d("RxFacebook", "" + simpleFacebook);
-                    });
+                .subscribe(simpleFacebook -> {
+                    android.util.Log.d("RxFacebook", "" + simpleFacebook);
+                });
         }
 
-        mViewPager.setAdapter(new SimpleFragmentPagerAdapter(getSupportFragmentManager()));
+        setTitle("");
+
+        toolbar = mViewPager.getToolbar();
+
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+
+            final ActionBar actionBar = getSupportActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+                actionBar.setDisplayShowHomeEnabled(true);
+                actionBar.setDisplayShowTitleEnabled(true);
+                actionBar.setDisplayUseLogoEnabled(false);
+                actionBar.setHomeButtonEnabled(true);
+            }
+        }
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawer, 0, 0);
+        mDrawer.setDrawerListener(mDrawerToggle);
+
+        mViewPager.getViewPager().setAdapter(new SimpleFragmentStatePagerAdapter(getSupportFragmentManager()));
+
+        mViewPager.getViewPager().setOffscreenPageLimit(mViewPager.getViewPager().getAdapter().getCount());
+        mViewPager.getPagerTitleStrip().setViewPager(mViewPager.getViewPager());
     }
 
-    public class SimpleFragmentPagerAdapter extends FragmentPagerAdapter {
+    public class SimpleFragmentStatePagerAdapter extends FragmentStatePagerAdapter {
 
-        public SimpleFragmentPagerAdapter(FragmentManager fm) {
+        public SimpleFragmentStatePagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -65,6 +102,12 @@ public class MainActivity extends AppCompatActivity {
             }
             return null;
         }
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
     }
 
     private SimpleFacebook mSimpleFacebook;

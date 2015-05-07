@@ -34,6 +34,7 @@ import rx.android.app.*;
 import rx.facebook.*;
 
 import android.support.v4.widget.SwipeRefreshLayout;
+import com.github.florent37.materialviewpager.*;
 
 public class MainFragment extends Fragment {
 
@@ -90,5 +91,7 @@ public class MainFragment extends Fragment {
             android.util.Log.d("RxFacebook", "message: " + p.getMessage()));
         });
         */
+
+        MaterialViewPagerHelper.registerRecyclerView(getActivity(), listView, null);
     }
 }
