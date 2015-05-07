@@ -130,7 +130,8 @@ public class FacebookObservable {
                 @Override
                 public void onComplete(List<Photo> photos) {
                     sub.onNext(photos);
-                    sub.onCompleted();
+                    if (hasNext()) getNext();
+                    else sub.onCompleted();
                 }
 
                 @Override
