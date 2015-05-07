@@ -40,68 +40,81 @@ FacebookObservable.logout(activity).subscribe();
 * -Get television-
 * -Get videos-
 
+getPhotos:
+
 ```java
 Observable<Photo> photos = FacebookObservable.getPhotos(activity);
 // entify: Profile Album Event Page
-Observable<Photo> photos = FacebookObservable.getPhotos(entityId, activity);
+Observable<Photo> photos = FacebookObservable.getPhotos(activity, entityId);
 ```
+
+getPosts:
 
 ```java
 Observable<Post> posts = FacebookObservable.getPosts(activity);
 // entity: Profile Event Group Page
-Observable<Post> posts = FacebookObservable.getPosts(entifyId, activity);
+Observable<Post> posts = FacebookObservable.getPosts(activity, entifyId);
 // status: links, statuses, posts or tagged
-Observable<Post> posts = FacebookObservable.getPosts(entifyId, PostType.STATUSES, activity);
+Observable<Post> posts = FacebookObservable.getPosts(activity, entifyId, PostType.STATUSES);
 ```
+
+getAccounts:
 
 ```java
 Observable<Account> accounts = FacebookObservable.getAccounts(activity);
-
 ```
+
+getAlbums:
 
 ```java
 Observable<Album> albums = FacebookObservable.getAlbums(activity);
 // entity: Profile Page
-Observable<Album> albums = FacebookObservable.getAlbums(entityId, activity);
-Observable<Album> album = FacebookObservable.getAlbum(albumId, activity);
-
+Observable<Album> albums = FacebookObservable.getAlbums(activity, entityId);
+Observable<Album> album = FacebookObservable.getAlbum(activity, albumId);
 ```
+
+getComments:
 
 ```java
 // entity: Album Checkin Comment Photo Post Video
-Observable<Comment> comments = FacebookObservable.getComments(entityId, activity);
-Observable<Comment> comment = FacebookObservable.getComments(commentId, activity);
-
+Observable<Comment> comments = FacebookObservable.getComments(activity, entityId);
+Observable<Comment> comment = FacebookObservable.getComments(activity, commentId);
 ```
+
+getEvents:
 
 ```java
-Observable<Event> events = FacebookObservable.getEvents(EventDecision.ATTENDING, activity);
+Observable<Event> events = FacebookObservable.getEvents(activity, EventDecision.ATTENDING);
 // entity: Profile, Page, Group
-Observable<Event> events = FacebookObservable.getEvents(entityId, EventDecision.ATTENDING, activity);
-
+Observable<Event> events = FacebookObservable.getEvents(activity, entityId, EventDecision.ATTENDING);
 ```
+
+getFamilyUsers:
 
 ```java
 Observable<FamilyUser> familyUsers = FacebookObservable.getFamily(activity);
-Observable<FamilyUser> familyUsers = FacebookObservable.getFamily(profileId, activity);
-
+Observable<FamilyUser> familyUsers = FacebookObservable.getFamily(activity, profileId);
 ```
+
+getFriends:
 
 ```java
 Observable<Profile> friends = FacebookObservable.getFriends(activity);
-
 ```
+
+getGroups:
 
 ```java
 Observable<Group> groups = FacebookObservable.getGroups(activity);
 // entity: Profile
-Observable<Group> groups = FacebookObservable.getGroups(entityId, activity);
-
+Observable<Group> groups = FacebookObservable.getGroups(activity, entityId);
 ```
+
+getLikes:
 
 ```java
 // entity: Album Checkin Comment Photo Post Video
-Observable<Like> likes = FacebookObservable.getLikes(entityId, activity);
+Observable<Like> likes = FacebookObservable.getLikes(activity, entityId);
 ```
 
 ## Installation
