@@ -152,13 +152,98 @@ public class FacebookObservable {
         }).flatMap(Observable::from);
     }
 
+    /**
+     *
+     * @param activity
+     * @return
+     */
     public static Observable<Post> getPosts(Activity activity) {
-        return getPosts(SimpleFacebook.getInstance(activity));
+        return getPosts(activity, null, null);
     }
 
-    public static Observable<Post> getPosts(SimpleFacebook simpleFacebook) {
+    /**
+     *
+     * @param entityId Profile Event Group Page
+     * @param entityId
+     * @return
+     */
+    public static Observable<Post> getPosts(Activity activity, String entityId) {
+        return getPosts(activity, entityId, null);
+    }
+
+    /**
+     *
+     * @param activity
+     * @param type
+     * @return
+     */
+    public static Observable<Post> getPosts(Activity activity, Post.PostType type) {
+        return getPosts(activity, null, type);
+    }
+
+    /**
+     *
+     * @param activity
+     * @param entityId Profile Event Group Page
+     * @param type
+     * @return
+     */
+    public static Observable<Post> getPosts(Activity activity, String entityId, Post.PostType type) {
+        return getPosts(SimpleFacebook.getInstance(activity), entityId, type);
+    }
+
+    /**
+     *
+     * @param simpleFacebook
+     * @param entityId Profile Event Group Page
+     * @return Observable&lt;Post&gt;
+     */
+    public static Observable<Post> getPosts(SimpleFacebook simpleFacebook, String entityId) {
+        return getPosts(simpleFacebook, entityId, Post.PostType.POSTS);
+    }
+
+    /**
+     *
+     * @param simpleFacebook
+     * @param entityId Profile Event Group Page
+     * @param type
+     * @return
+     */
+    public static Observable<Post> getPosts(SimpleFacebook simpleFacebook, String entityId, Post.PostType type) {
         return Observable.<List<Post>>create(sub -> {
-            simpleFacebook.getPosts(Post.PostType.POSTS, new OnPostsListener() {
+            simpleFacebook.getPosts(entityId, type, new OnPostsListener() {
+                @Override
+                public void onException(Throwable throwable) {
+                    sub.onError(throwable);
+                }
+                @Override
+                public void onComplete(List<Post> posts) {
+                    sub.onNext(posts);
+                    if (hasNext()) getNext();
+                    else sub.onCompleted();
+                }
+            });
+        }).flatMap(Observable::from);
+    }
+
+    /**
+     *
+     * @param simpleFacebook
+     * @return
+     */
+    public static Observable<Post> getPosts(SimpleFacebook simpleFacebook) {
+        return getPosts(simpleFacebook, Post.PostType.POSTS);
+    }
+
+    /**
+     *
+     * @param simpleFacebook
+     * @param type
+     * @return
+     */
+    public static Observable<Post> getPosts(SimpleFacebook simpleFacebook, Post.PostType type) {
+        return Observable.<List<Post>>create(sub -> {
+            simpleFacebook.getPosts(type, new OnPostsListener() {
                 @Override
                 public void onException(Throwable throwable) {
                     sub.onError(throwable);
