@@ -6,7 +6,7 @@
 [![rxfacebook.svg](art/rxfacebook.svg)](art/rxfacebook.svg)
 -->
 
-Facebook in RxJava. Based on android-simple-facebook.
+Facebook in RxJava.
 
 ## Usage
 
@@ -130,6 +130,22 @@ dependencies {
     compile 'com.github.yongjhih:rxfacebook:1.0.0'
 }
 ```
+
+## Build
+
+DIY:
+
+```
+$ git clone https://github.com/sromku/android-simple-facebook
+$ cd RxFacebook
+$ ./gradlew assembleDebug
+```
+
+## Credit
+
+Based on sromku/android-simple-facebook.
+
+* sromku
 
 ## TODO
 
