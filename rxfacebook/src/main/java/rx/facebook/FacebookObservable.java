@@ -35,6 +35,11 @@ import android.text.TextUtils;
 
 public class FacebookObservable {
 
+    /**
+     *
+     * @param activity
+     * @return
+     */
     public static Observable<SimpleFacebook> login(Activity activity) {
         return login(SimpleFacebook.getInstance(activity));
     }
@@ -53,6 +58,11 @@ public class FacebookObservable {
 
     }
 
+    /**
+     *
+     * @param simpleFacebook
+     * @return
+     */
     public static Observable<SimpleFacebook> login(SimpleFacebook simpleFacebook) {
         return Observable.create(sub -> {
             simpleFacebook.login(new OnLoginListener() {
@@ -89,18 +99,40 @@ public class FacebookObservable {
         });
     }
 
+    /**
+     *
+     * @param activity
+     * @return
+     */
     public static Observable<Photo> getPhotos(Activity activity) {
         return getPhotos(activity, null);
     }
 
+    /**
+     *
+     * @param activity
+     * @param entityId Profile Album Event Page
+     * @return
+     */
     public static Observable<Photo> getPhotos(Activity activity, String entityId) {
         return getPhotos(SimpleFacebook.getInstance(activity), entityId);
     }
 
+    /**
+     *
+     * @param simpleFacebook
+     * @return
+     */
     public static Observable<Photo> getPhotos(SimpleFacebook simpleFacebook) {
         return getPhotos(simpleFacebook, null);
     }
 
+    /**
+     *
+     * @param simpleFacebook
+     * @param entityId Profile Album Event Page
+     * @return
+     */
     public static Observable<Photo> getPhotos(SimpleFacebook simpleFacebook, String entityId) {
         if (entityId == null) {
             return Observable.<List<Photo>>create(sub -> {
@@ -157,10 +189,22 @@ public class FacebookObservable {
         }).flatMap(Observable::from);
     }
 
+    /**
+     *
+     * @param activity
+     * @param attachment
+     * @return
+     */
     public static Observable<Photo> getPhoto(Activity activity, Attachment attachment) {
         return getPhoto(SimpleFacebook.getInstance(activity), attachment);
     }
 
+    /**
+     *
+     * @param simpleFacebook
+     * @param attachment
+     * @return
+     */
     public static Observable<Photo> getPhoto(SimpleFacebook simpleFacebook, Attachment attachment) {
         if (TextUtils.isEmpty(attachment.getTarget().getId())) return Observable.empty();
 
@@ -292,10 +336,22 @@ public class FacebookObservable {
         return getPosts(simpleFacebook, null, null);
     }
 
+    /**
+     *
+     * @param activity
+     * @param post
+     * @return
+     */
     public static Observable<Attachment> getAttachment(Activity activity, Post post) {
         return getAttachment(SimpleFacebook.getInstance(activity), post);
     }
 
+    /**
+     *
+     * @param simpleFacebook
+     * @param post
+     * @return
+     */
     public static Observable<Attachment> getAttachment(SimpleFacebook simpleFacebook, Post post) {
         if (TextUtils.isEmpty(post.getId())) return Observable.empty();
 
@@ -314,10 +370,20 @@ public class FacebookObservable {
         });
     }
 
+    /**
+     *
+     * @param activity
+     * @return
+     */
     public static Observable<Account> getAccounts(Activity activity) {
         return getAccounts(SimpleFacebook.getInstance(activity));
     }
 
+    /**
+     * Get pages of which the current user is an admin.
+     * @param simpleFacebook
+     * @return
+     */
     public static Observable<Account> getAccounts(SimpleFacebook simpleFacebook) {
         return Observable.<List<Account>>create(sub -> {
             simpleFacebook.getAccounts(new OnAccountsListener() {
@@ -335,12 +401,17 @@ public class FacebookObservable {
         }).flatMap(Observable::from);
     }
 
+    /**
+     * Get all albums
+     * @param activity
+     * @return
+     */
     public static Observable<Album> getAlbums(Activity activity) {
         return getAlbums(activity, null);
     }
 
     /**
-     *
+     * Get all albums
      * @param activity
      * @param entityId Profile Page
      * @return
@@ -349,13 +420,18 @@ public class FacebookObservable {
         return getAlbums(SimpleFacebook.getInstance(activity), entityId);
     }
 
+    /**
+     * Get all albums
+     * @param simpleFacebook
+     * @return
+     */
     public static Observable<Album> getAlbums(SimpleFacebook simpleFacebook) {
         return getAlbums(simpleFacebook, null);
     }
 
     /**
-     *
-     * @param activity
+     * Get all albums
+     * @param simpleFacebook
      * @param entityId Profile Page
      * @return
      */
@@ -421,6 +497,12 @@ public class FacebookObservable {
     }
     */
 
+    /**
+     * Get one album
+     * @param activity
+     * @param albumId
+     * @return
+     */
     public static Observable<Album> getAlbum(Activity activity, String albumId) {
         return getAlbum(SimpleFacebook.getInstance(activity), albumId);
     }
@@ -431,6 +513,12 @@ public class FacebookObservable {
     }
     */
 
+    /**
+     * Get one album
+     * @param simpleFacebook
+     * @param albumId
+     * @return
+     */
     public static Observable<Album> getAlbum(SimpleFacebook simpleFacebook, String albumId) {
         return Observable.create(sub -> {
             simpleFacebook.getAlbum(albumId, new OnAlbumListener() {
