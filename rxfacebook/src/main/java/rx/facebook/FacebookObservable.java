@@ -192,6 +192,48 @@ public class FacebookObservable {
     /**
      *
      * @param activity
+     * @return
+     */
+    public static Observable<Photo> getUploadedPhotos(Activity activity) {
+        return getUploadedPhotos(SimpleFacebook.getInstance(activity));
+    }
+
+    /**
+     *
+     * @param simpleFacebook
+     * @return
+     */
+    public static Observable<Photo> getUploadedPhotos(SimpleFacebook simpleFacebook) {
+        return Observable.<List<Photo>>create(sub -> {
+            simpleFacebook.getUploadedPhotos(new OnPhotosListener() {
+                @Override
+                public void onComplete(List<Photo> photos) {
+                    sub.onNext(photos);
+                    if (hasNext()) getNext();
+                    else sub.onCompleted();
+                }
+
+                @Override
+                public void onThinking() {
+                    // TODO
+                }
+
+                @Override
+                public void onFail(String reason) {
+                    sub.onError(new RuntimeException(reason));
+                }
+
+                @Override
+                public void onException(Throwable throwable) {
+                    sub.onError(throwable);
+                }
+            });
+        }).flatMap(Observable::from);
+    }
+
+    /**
+     *
+     * @param activity
      * @param attachment
      * @return
      */

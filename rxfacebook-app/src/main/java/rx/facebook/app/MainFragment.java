@@ -80,7 +80,7 @@ public class MainFragment extends Fragment {
         refresher = new SwipeRefreshLayout.OnRefreshListener() {
             @Override public void onRefresh() {
                 loading.setRefreshing(true);
-                AppObservable.bindFragment(MainFragment.this, FacebookObservable.getPhotos(getActivity()))
+                AppObservable.bindFragment(MainFragment.this, FacebookObservable.getUploadedPhotos(getActivity()))
                         .doOnNext(p -> {
                             android.util.Log.d("RxFacebook", "user: " + p.getFrom().getName());
                             android.util.Log.d("RxFacebook", "link: " + p.getLink());
