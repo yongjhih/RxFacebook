@@ -96,7 +96,7 @@ public class FacebookObservable {
                     sub.onError(throwable);
                 }
             });
-        });
+        }).subscribeOn(AndroidSchedulers.mainThread());
     }
 
     /**
@@ -159,7 +159,7 @@ public class FacebookObservable {
                         sub.onError(throwable);
                     }
                 });
-            }).flatMap(Observable::from);
+            }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
         }
 
         return Observable.<List<Photo>>create(sub -> {
@@ -186,7 +186,7 @@ public class FacebookObservable {
                     sub.onError(throwable);
                 }
             });
-        }).flatMap(Observable::from);
+        }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
     }
 
     /**
@@ -228,7 +228,7 @@ public class FacebookObservable {
                     sub.onError(throwable);
                 }
             });
-        }).flatMap(Observable::from);
+        }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
     }
 
     /**
@@ -262,7 +262,7 @@ public class FacebookObservable {
                     sub.onError(throwable);
                 }
             });
-        });
+        }).subscribeOn(AndroidSchedulers.mainThread());
     }
 
     /**
@@ -339,7 +339,7 @@ public class FacebookObservable {
                         sub.onError(throwable);
                     }
                 });
-            }).flatMap(Observable::from);
+            }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
         }
 
         // assert(finalType != null && entityId != null);
@@ -356,7 +356,7 @@ public class FacebookObservable {
                     sub.onError(throwable);
                 }
             });
-        }).flatMap(Observable::from);
+        }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
     }
 
     /**
@@ -409,7 +409,7 @@ public class FacebookObservable {
                     sub.onError(throwable);
                 }
             });
-        });
+        }).subscribeOn(AndroidSchedulers.mainThread());
     }
 
     /**
@@ -440,7 +440,7 @@ public class FacebookObservable {
                     sub.onError(throwable);
                 }
             });
-        }).flatMap(Observable::from);
+        }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
     }
 
     /**
@@ -503,7 +503,7 @@ public class FacebookObservable {
                         sub.onError(throwable);
                     }
                 });
-            }).flatMap(Observable::from);
+            }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
         }
 
         return Observable.<List<Album>>create(sub -> {
@@ -530,7 +530,7 @@ public class FacebookObservable {
                     sub.onError(throwable);
                 }
             });
-        }).flatMap(Observable::from);
+        }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
     }
 
     /*
