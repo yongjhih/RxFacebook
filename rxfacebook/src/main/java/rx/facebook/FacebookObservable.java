@@ -18,6 +18,7 @@ import static com.sromku.simple.fb.entities.Privacy.PrivacySettings.ALL_FRIENDS;
 import static com.sromku.simple.fb.entities.Privacy.PrivacySettings.EVERYONE;
 import static com.sromku.simple.fb.entities.Privacy.PrivacySettings.SELF;
 
+import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.*;
 import rx.Observable;
 import rx.functions.*;
@@ -64,7 +65,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<SimpleFacebook> login(SimpleFacebook simpleFacebook) {
-        return Observable.create(sub -> {
+        return Observable.<SimpleFacebook>create(sub -> {
             simpleFacebook.login(new OnLoginListener() {
                 @Override
                 public void onLogin() {
@@ -250,7 +251,7 @@ public class FacebookObservable {
     public static Observable<Photo> getPhoto(SimpleFacebook simpleFacebook, Attachment attachment) {
         if (TextUtils.isEmpty(attachment.getTarget().getId())) return Observable.empty();
 
-        return Observable.create(sub -> {
+        return Observable.<Photo>create(sub -> {
             simpleFacebook.getPhoto(attachment.getTarget().getId(), new OnPhotoListener() {
                 @Override
                 public void onComplete(Photo photo) {
@@ -397,7 +398,7 @@ public class FacebookObservable {
     public static Observable<Attachment> getAttachment(SimpleFacebook simpleFacebook, Post post) {
         if (TextUtils.isEmpty(post.getId())) return Observable.empty();
 
-        return Observable.create(sub -> {
+        return Observable.<Attachment>create(sub -> {
             simpleFacebook.getAttachment(post.getId(), new OnAttachmentListener() {
                 @Override
                 public void onComplete(Attachment attachment) {
