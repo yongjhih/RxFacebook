@@ -150,6 +150,7 @@ Based on sromku/android-simple-facebook.
 ## TODO
 
 * Backpressure more posts/photos/comments
+* `.subscribeOn(AndroidSchedulers.mainThread())` issue
 
 ## LICENSE
 
