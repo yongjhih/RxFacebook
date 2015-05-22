@@ -1,5 +1,7 @@
 # RxFacebook
 
+[![Join the chat at https://gitter.im/yongjhih/RxFacebook](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/yongjhih/RxFacebook?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [![rxparse.png](art/rxfacebook.png)](art/rxfacebook.png)
 
 <!--
