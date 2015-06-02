@@ -327,6 +327,26 @@ public class FacebookObservable {
         final Post.PostType finalType = type;
 
         if (entityId == null) {
+            /*
+            return Observable.defer(() -> {
+                Subject<List<Post>, List<Post>> sub = PublishSubject.create();
+                simpleFacebook.getActivity().runOnUiThread(() -> {
+                    simpleFacebook.getPosts(finalType, new OnPostsListener() {
+                        @Override
+                        public void onComplete(List<Post> posts) {
+                            sub.onNext(posts);
+                            if (hasNext()) getNext();
+                            else sub.onCompleted();
+                        }
+                        @Override
+                        public void onException(Throwable throwable) {
+                            sub.onError(throwable);
+                        }
+                    });
+                });
+                return sub.asObservable();
+            }).flatMap(Observable::from);
+            */
             return Observable.<List<Post>>create(sub -> {
                 simpleFacebook.getPosts(finalType, new OnPostsListener() {
                     @Override
@@ -335,6 +355,7 @@ public class FacebookObservable {
                         if (hasNext()) getNext();
                         else sub.onCompleted();
                     }
+
                     @Override
                     public void onException(Throwable throwable) {
                         sub.onError(throwable);
@@ -343,7 +364,6 @@ public class FacebookObservable {
             }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
         }
 
-        // assert(finalType != null && entityId != null);
         return Observable.<List<Post>>create(sub -> {
             simpleFacebook.getPosts(entityId, finalType, new OnPostsListener() {
                 @Override
@@ -352,6 +372,7 @@ public class FacebookObservable {
                     if (hasNext()) getNext();
                     else sub.onCompleted();
                 }
+
                 @Override
                 public void onException(Throwable throwable) {
                     sub.onError(throwable);
