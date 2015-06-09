@@ -42,7 +42,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<SimpleFacebook> login(Activity activity) {
-        return login(SimpleFacebook.getInstance(activity));
+        return login(SimpleFacebook.getInstance(activity), activity);
     }
 
     public static class NotAcceptingPermissionsException extends RuntimeException {
@@ -65,39 +65,80 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<SimpleFacebook> login(SimpleFacebook simpleFacebook) {
+        return login(simpleFacebook, null);
+    }
+
+    public static Observable<SimpleFacebook> login(SimpleFacebook simpleFacebook, Activity activity) {
         return Observable.<SimpleFacebook>create(sub -> {
-            simpleFacebook.login(new OnLoginListener() {
-                @Override
-                public void onLogin() {
-                }
+            if (activity != null) {
+                activity.runOnUiThread(() -> {
+                    simpleFacebook.login(new OnLoginListener() {
+                        @Override
+                        public void onLogin() {
+                        }
 
-                @Override
-                public void onLogin(SimpleFacebook simpleFacebook) {
-                    sub.onNext(simpleFacebook);
-                    sub.onCompleted();
-                }
+                        @Override
+                        public void onLogin(SimpleFacebook simpleFacebook) {
+                            sub.onNext(simpleFacebook);
+                            sub.onCompleted();
+                        }
 
-                @Override
-                public void onNotAcceptingPermissions(Permission.Type type) {
-                    sub.onError(new NotAcceptingPermissionsException(type));
-                }
+                        @Override
+                        public void onNotAcceptingPermissions(Permission.Type type) {
+                            sub.onError(new NotAcceptingPermissionsException(type));
+                        }
 
-                @Override
-                public void onThinking() {
-                    // TODO
-                }
+                        @Override
+                        public void onThinking() {
+                            // TODO
+                        }
 
-                @Override
-                public void onFail(String reason) {
-                    sub.onError(new RuntimeException(reason));
-                }
+                        @Override
+                        public void onFail(String reason) {
+                            sub.onError(new RuntimeException(reason));
+                        }
 
-                @Override
-                public void onException(Throwable throwable) {
-                    sub.onError(throwable);
-                }
-            });
-        }).subscribeOn(AndroidSchedulers.mainThread());
+                        @Override
+                        public void onException(Throwable throwable) {
+                            sub.onError(throwable);
+                        }
+                    });
+                });
+            } else {
+                simpleFacebook.login(new OnLoginListener() {
+                    @Override
+                    public void onLogin() {
+                    }
+
+                    @Override
+                    public void onLogin(SimpleFacebook simpleFacebook) {
+                        sub.onNext(simpleFacebook);
+                        sub.onCompleted();
+                    }
+
+                    @Override
+                    public void onNotAcceptingPermissions(Permission.Type type) {
+                        sub.onError(new NotAcceptingPermissionsException(type));
+                    }
+
+                    @Override
+                    public void onThinking() {
+                        // TODO
+                    }
+
+                    @Override
+                    public void onFail(String reason) {
+                        sub.onError(new RuntimeException(reason));
+                    }
+
+                    @Override
+                    public void onException(Throwable throwable) {
+                        sub.onError(throwable);
+                    }
+                });
+            }
+        //}).subscribeOn(AndroidSchedulers.mainThread());
+        });
     }
 
     /**
@@ -116,7 +157,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Photo> getPhotos(Activity activity, String entityId) {
-        return getPhotos(SimpleFacebook.getInstance(activity), entityId);
+        return login(activity).flatMap(f -> getPhotos(SimpleFacebook.getInstance(activity), entityId));
     }
 
     /**
@@ -302,7 +343,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Post> getPosts(Activity activity, String entityId, Post.PostType type) {
-        return getPosts(SimpleFacebook.getInstance(activity), entityId, type);
+        return login(activity).flatMap(f -> getPosts(SimpleFacebook.getInstance(activity), entityId, type));
     }
 
     /**
@@ -386,7 +427,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Attachment> getAttachment(Activity activity, Post post) {
-        return getAttachment(SimpleFacebook.getInstance(activity), post);
+        return login(activity).flatMap(f -> getAttachment(SimpleFacebook.getInstance(activity), post, activity));
     }
 
     /**
@@ -396,21 +437,27 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Attachment> getAttachment(SimpleFacebook simpleFacebook, Post post) {
+        return getAttachment(simpleFacebook, post, null);
+    }
+
+    public static Observable<Attachment> getAttachment(SimpleFacebook simpleFacebook, Post post, Activity activity) {
         if (TextUtils.isEmpty(post.getId())) return Observable.empty();
 
         return Observable.<Attachment>create(sub -> {
-            simpleFacebook.getAttachment(post.getId(), new OnAttachmentListener() {
-                @Override
-                public void onComplete(Attachment attachment) {
-                    sub.onNext(attachment);
-                    sub.onCompleted();
-                }
-                @Override
-                public void onException(Throwable throwable) {
-                    sub.onError(throwable);
-                }
+                activity.runOnUiThread(() -> {
+                    simpleFacebook.getAttachment(post.getId(), new OnAttachmentListener() {
+                        @Override
+                        public void onComplete(Attachment attachment) {
+                            sub.onNext(attachment);
+                            sub.onCompleted();
+                        }
+                        @Override
+                        public void onException(Throwable throwable) {
+                            sub.onError(throwable);
+                        }
+                    });
+                });
             });
-        }).subscribeOn(AndroidSchedulers.mainThread());
     }
 
     /**
