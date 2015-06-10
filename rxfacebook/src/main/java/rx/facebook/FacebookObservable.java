@@ -343,7 +343,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Post> getPosts(Activity activity, String entityId, Post.PostType type) {
-        return login(activity).flatMap(f -> getPosts(SimpleFacebook.getInstance(activity), entityId, type));
+        return login(activity).flatMap(f -> getPosts(SimpleFacebook.getInstance(activity), entityId, type, activity));
     }
 
     /**
@@ -353,8 +353,26 @@ public class FacebookObservable {
      * @return Observable&lt;Post&gt;
      */
     public static Observable<Post> getPosts(SimpleFacebook simpleFacebook, String entityId) {
-        return getPosts(simpleFacebook, entityId, null);
+        return getPosts(simpleFacebook, entityId, null, null);
     }
+
+/*
+    public static OnPostsListener getOnPostsListener() {
+            new OnPostsListener() {
+            @Override
+            public void onComplete(List<Post> posts) {
+                sub.onNext(posts);
+                if (hasNext()) getNext();
+                else sub.onCompleted();
+            }
+            @Override
+            public void onException(Throwable throwable) {
+                sub.onError(throwable);
+            }
+        });
+    }
+    }
+*/
 
     /**
      *
@@ -363,11 +381,29 @@ public class FacebookObservable {
      * @param type
      * @return
      */
-    public static Observable<Post> getPosts(SimpleFacebook simpleFacebook, String entityId, Post.PostType type) {
+    public static Observable<Post> getPosts(SimpleFacebook simpleFacebook, String entityId, Post.PostType type, Activity activity) {
         if (type == null) type = Post.PostType.POSTS;
         final Post.PostType finalType = type;
 
         if (entityId == null) {
+            if (activity != null) {
+            return Observable.<List<Post>>create(sub -> {
+                    activity.runOnUiThread(() -> {
+                        simpleFacebook.getPosts(finalType, new OnPostsListener() {
+                            @Override
+                            public void onComplete(List<Post> posts) {
+                                sub.onNext(posts);
+                                if (hasNext()) getNext();
+                                else sub.onCompleted();
+                            }
+                            @Override
+                            public void onException(Throwable throwable) {
+                                sub.onError(throwable);
+                            }
+                        });
+                    });
+                }).flatMap(Observable::from);
+            } else {
             return Observable.<List<Post>>create(sub -> {
                 simpleFacebook.getPosts(finalType, new OnPostsListener() {
                     @Override
@@ -382,9 +418,28 @@ public class FacebookObservable {
                     }
                 });
             }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
+            }
         }
 
         // assert(finalType != null && entityId != null);
+            if (activity != null) {
+            return Observable.<List<Post>>create(sub -> {
+                    activity.runOnUiThread(() -> {
+                        simpleFacebook.getPosts(entityId, finalType, new OnPostsListener() {
+                            @Override
+                            public void onComplete(List<Post> posts) {
+                                sub.onNext(posts);
+                                if (hasNext()) getNext();
+                                else sub.onCompleted();
+                            }
+                            @Override
+                            public void onException(Throwable throwable) {
+                                sub.onError(throwable);
+                            }
+                        });
+                    });
+                }).flatMap(Observable::from);
+            } else {
         return Observable.<List<Post>>create(sub -> {
             simpleFacebook.getPosts(entityId, finalType, new OnPostsListener() {
                 @Override
@@ -399,6 +454,7 @@ public class FacebookObservable {
                 }
             });
         }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
+            }
     }
 
     /**
@@ -417,7 +473,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Post> getPosts(SimpleFacebook simpleFacebook, Post.PostType type) {
-        return getPosts(simpleFacebook, null, null);
+        return getPosts(simpleFacebook, null, null, null);
     }
 
     /**
