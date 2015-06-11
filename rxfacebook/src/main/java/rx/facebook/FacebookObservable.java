@@ -483,7 +483,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Attachment> getAttachment(Activity activity, Post post) {
-        return login(activity).flatMap(f -> getAttachment(SimpleFacebook.getInstance(activity), post, activity));
+        return getAttachment(SimpleFacebook.getInstance(activity), post, activity);
     }
 
     /**
