@@ -157,7 +157,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Photo> getPhotos(Activity activity, String entityId) {
-        return login(activity).flatMap(f -> getPhotos(SimpleFacebook.getInstance(activity), entityId));
+        return getPhotos(SimpleFacebook.getInstance(activity), entityId);
     }
 
     /**
@@ -343,7 +343,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Post> getPosts(Activity activity, String entityId, Post.PostType type) {
-        return login(activity).flatMap(f -> getPosts(SimpleFacebook.getInstance(activity), entityId, type, activity));
+        return getPosts(SimpleFacebook.getInstance(activity), entityId, type, activity);
     }
 
     /**
