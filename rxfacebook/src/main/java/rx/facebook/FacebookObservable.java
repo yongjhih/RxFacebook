@@ -157,7 +157,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Photo> getPhotos(Activity activity, String entityId) {
-        return getPhotos(SimpleFacebook.getInstance(activity), entityId);
+        return getPhotos(SimpleFacebook.getInstance(activity), entityId, activity);
     }
 
     /**
@@ -176,9 +176,99 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Photo> getPhotos(SimpleFacebook simpleFacebook, String entityId) {
+        return getPhotos(simpleFacebook, entityId, null);
+    }
+
+    public static Observable<Photo> getPhotos(SimpleFacebook simpleFacebook, String entityId, Activity activity) {
         if (entityId == null) {
+            if (activity != null) {
+                return Observable.<List<Photo>>create(sub -> {
+                    activity.runOnUiThread(() -> {
+                        simpleFacebook.getPhotos(new OnPhotosListener() {
+                            @Override
+                            public void onComplete(List<Photo> photos) {
+                                sub.onNext(photos);
+                                if (hasNext()) getNext();
+                                else sub.onCompleted();
+                            }
+
+                            @Override
+                            public void onThinking() {
+                                // TODO
+                            }
+
+                            @Override
+                            public void onFail(String reason) {
+                                sub.onError(new RuntimeException(reason));
+                            }
+
+                            @Override
+                            public void onException(Throwable throwable) {
+                                sub.onError(throwable);
+                            }
+                        });
+                    });
+                }).flatMap(Observable::from);
+            } else {
+                return Observable.<List<Photo>>create(sub -> {
+                    simpleFacebook.getPhotos(new OnPhotosListener() {
+                        @Override
+                        public void onComplete(List<Photo> photos) {
+                            sub.onNext(photos);
+                            if (hasNext()) getNext();
+                            else sub.onCompleted();
+                        }
+
+                        @Override
+                        public void onThinking() {
+                            // TODO
+                        }
+
+                        @Override
+                        public void onFail(String reason) {
+                            sub.onError(new RuntimeException(reason));
+                        }
+
+                        @Override
+                        public void onException(Throwable throwable) {
+                            sub.onError(throwable);
+                        }
+                    });
+                }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
+            }
+        }
+
+        if (activity != null) {
             return Observable.<List<Photo>>create(sub -> {
-                simpleFacebook.getPhotos(new OnPhotosListener() {
+                activity.runOnUiThread(() -> {
+                    simpleFacebook.getPhotos(entityId, new OnPhotosListener() {
+                        @Override
+                        public void onComplete(List<Photo> photos) {
+                            sub.onNext(photos);
+                            if (hasNext()) getNext();
+                            else sub.onCompleted();
+                        }
+
+                        @Override
+                        public void onThinking() {
+                            // TODO
+                        }
+
+                        @Override
+                        public void onFail(String reason) {
+                            sub.onError(new RuntimeException(reason));
+                        }
+
+                        @Override
+                        public void onException(Throwable throwable) {
+                            sub.onError(throwable);
+                        }
+                    });
+                });
+            }).flatMap(Observable::from);
+        } else {
+            return Observable.<List<Photo>>create(sub -> {
+                simpleFacebook.getPhotos(entityId, new OnPhotosListener() {
                     @Override
                     public void onComplete(List<Photo> photos) {
                         sub.onNext(photos);
@@ -203,32 +293,6 @@ public class FacebookObservable {
                 });
             }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
         }
-
-        return Observable.<List<Photo>>create(sub -> {
-            simpleFacebook.getPhotos(entityId, new OnPhotosListener() {
-                @Override
-                public void onComplete(List<Photo> photos) {
-                    sub.onNext(photos);
-                    if (hasNext()) getNext();
-                    else sub.onCompleted();
-                }
-
-                @Override
-                public void onThinking() {
-                    // TODO
-                }
-
-                @Override
-                public void onFail(String reason) {
-                    sub.onError(new RuntimeException(reason));
-                }
-
-                @Override
-                public void onException(Throwable throwable) {
-                    sub.onError(throwable);
-                }
-            });
-        }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
     }
 
     /**
@@ -280,7 +344,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Photo> getPhoto(Activity activity, Attachment attachment) {
-        return getPhoto(SimpleFacebook.getInstance(activity), attachment);
+        return getPhoto(SimpleFacebook.getInstance(activity), attachment, activity);
     }
 
     /**
@@ -290,21 +354,49 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Photo> getPhoto(SimpleFacebook simpleFacebook, Attachment attachment) {
+        return getPhoto(simpleFacebook, attachment, null);
+    }
+
+    public static Observable<Photo> getPhoto(SimpleFacebook simpleFacebook, Attachment attachment, Activity activity) {
         if (TextUtils.isEmpty(attachment.getTarget().getId())) return Observable.empty();
 
+        if (activity != null) {
         return Observable.<Photo>create(sub -> {
-            simpleFacebook.getPhoto(attachment.getTarget().getId(), new OnPhotoListener() {
-                @Override
-                public void onComplete(Photo photo) {
-                    sub.onNext(photo);
-                    sub.onCompleted();
-                }
-                @Override
-                public void onException(Throwable throwable) {
-                    sub.onError(throwable);
-                }
+            activity.runOnUiThread(() -> {
+                simpleFacebook.getPhoto(attachment.getTarget().getId(), new OnPhotoListener() {
+                    @Override
+                    public void onComplete(Photo photo) {
+                        sub.onNext(photo);
+                        sub.onCompleted();
+                    }
+                    @Override
+                    public void onException(Throwable throwable) {
+                        sub.onError(throwable);
+                    }
+                });
+            });
+        }).onErrorResumeNext(e -> {
+            android.util.Log.e("RxFacebook", "" + e);
+            e.printStackTrace();
+            return Observable.empty();
+        });
+        } else {
+        return Observable.<Photo>create(sub -> {
+            activity.runOnUiThread(() -> {
+                simpleFacebook.getPhoto(attachment.getTarget().getId(), new OnPhotoListener() {
+                    @Override
+                    public void onComplete(Photo photo) {
+                        sub.onNext(photo);
+                        sub.onCompleted();
+                    }
+                    @Override
+                    public void onException(Throwable throwable) {
+                        sub.onError(throwable);
+                    }
+                });
             });
         }).subscribeOn(AndroidSchedulers.mainThread());
+        }
     }
 
     /**
@@ -501,21 +593,39 @@ public class FacebookObservable {
     public static Observable<Attachment> getAttachment(SimpleFacebook simpleFacebook, Post post, Activity activity) {
         if (TextUtils.isEmpty(post.getId())) return Observable.empty();
 
-        return Observable.<Attachment>create(sub -> {
-                activity.runOnUiThread(() -> {
-                    simpleFacebook.getAttachment(post.getId(), new OnAttachmentListener() {
-                        @Override
-                        public void onComplete(Attachment attachment) {
-                            sub.onNext(attachment);
-                            sub.onCompleted();
-                        }
-                        @Override
-                        public void onException(Throwable throwable) {
-                            sub.onError(throwable);
-                        }
+            if (activity != null) {
+                return Observable.<Attachment>create(sub -> {
+                        activity.runOnUiThread(() -> {
+                            simpleFacebook.getAttachment(post.getId(), new OnAttachmentListener() {
+                                @Override
+                                public void onComplete(Attachment attachment) {
+                                    sub.onNext(attachment);
+                                    sub.onCompleted();
+                                }
+                                @Override
+                                public void onException(Throwable throwable) {
+                                    sub.onError(throwable);
+                                }
+                            });
+                        });
                     });
-                });
-            });
+            } else {
+                return Observable.<Attachment>create(sub -> {
+                        activity.runOnUiThread(() -> {
+                            simpleFacebook.getAttachment(post.getId(), new OnAttachmentListener() {
+                                @Override
+                                public void onComplete(Attachment attachment) {
+                                    sub.onNext(attachment);
+                                    sub.onCompleted();
+                                }
+                                @Override
+                                public void onException(Throwable throwable) {
+                                    sub.onError(throwable);
+                                }
+                            });
+                        });
+                    }).subscribeOn(AndroidSchedulers.mainThread());
+            }
     }
 
     /**
