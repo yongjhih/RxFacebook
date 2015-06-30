@@ -500,9 +500,19 @@ public class FacebookObservable {
                 simpleFacebook.getPosts(finalType, new OnPostsListener() {
                     @Override
                     public void onComplete(List<Post> posts) {
-                        sub.onNext(posts);
-                        if (hasNext()) getNext();
-                        else sub.onCompleted();
+                        try {
+                            sub.onNext(posts);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            sub.onError(e);
+                        }
+                        try {
+                            if (hasNext()) getNext();
+                            else sub.onCompleted();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            sub.onCompleted();
+                        }
                     }
 
                     @Override
