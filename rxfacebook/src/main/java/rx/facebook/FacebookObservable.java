@@ -31,6 +31,7 @@ import rx.subscriptions.*;
 //import rx.android.view.*;
 
 import java.util.List;
+import java.util.Date;
 import android.app.Activity;
 import android.text.TextUtils;
 
@@ -405,7 +406,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Post> getPosts(Activity activity) {
-        return getPosts(activity, null, null);
+        return getPosts(activity, (String) null, (Post.PostType) null, (Date) null, (Date) null);
     }
 
     /**
@@ -414,7 +415,7 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Post> getPosts(Activity activity, String entityId) {
-        return getPosts(activity, entityId, null);
+        return getPosts(activity, entityId, (Post.PostType) null, (Date) null, (Date) null);
     }
 
     /**
@@ -424,7 +425,11 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Post> getPosts(Activity activity, Post.PostType type) {
-        return getPosts(activity, null, type);
+        return getPosts(activity, (String) null, type, (Date) null, (Date) null);
+    }
+
+    public static Observable<Post> getPosts(Activity activity, Date since, Date until) {
+        return getPosts(activity, (String) null, (Post.PostType) null, since, until);
     }
 
     /**
@@ -434,8 +439,8 @@ public class FacebookObservable {
      * @param type
      * @return
      */
-    public static Observable<Post> getPosts(Activity activity, String entityId, Post.PostType type) {
-        return getPosts(SimpleFacebook.getInstance(activity), entityId, type, activity);
+    public static Observable<Post> getPosts(Activity activity, String entityId, Post.PostType type, Date since, Date until) {
+        return getPosts(SimpleFacebook.getInstance(activity), entityId, type, activity, since, until);
     }
 
     /**
@@ -445,120 +450,7 @@ public class FacebookObservable {
      * @return Observable&lt;Post&gt;
      */
     public static Observable<Post> getPosts(SimpleFacebook simpleFacebook, String entityId) {
-        return getPosts(simpleFacebook, entityId, null, null);
-    }
-
-/*
-    public static OnPostsListener getOnPostsListener() {
-            new OnPostsListener() {
-            @Override
-            public void onComplete(List<Post> posts) {
-                sub.onNext(posts);
-                if (hasNext()) getNext();
-                else sub.onCompleted();
-            }
-            @Override
-            public void onException(Throwable throwable) {
-                sub.onError(throwable);
-            }
-        });
-    }
-    }
-*/
-
-    /**
-     *
-     * @param simpleFacebook
-     * @param entityId Profile Event Group Page
-     * @param type
-     * @return
-     */
-    public static Observable<Post> getPosts(SimpleFacebook simpleFacebook, String entityId, Post.PostType type, Activity activity) {
-        if (type == null) type = Post.PostType.POSTS;
-        final Post.PostType finalType = type;
-
-        if (entityId == null) {
-            if (activity != null) {
-            return Observable.<List<Post>>create(sub -> {
-                    activity.runOnUiThread(() -> {
-                        simpleFacebook.getPosts(finalType, new OnPostsListener() {
-                            @Override
-                            public void onComplete(List<Post> posts) {
-                                sub.onNext(posts);
-                                if (hasNext()) getNext();
-                                else sub.onCompleted();
-                            }
-                            @Override
-                            public void onException(Throwable throwable) {
-                                sub.onError(throwable);
-                            }
-                        });
-                    });
-                }).flatMap(Observable::from);
-            } else {
-            return Observable.<List<Post>>create(sub -> {
-                simpleFacebook.getPosts(finalType, new OnPostsListener() {
-                    @Override
-                    public void onComplete(List<Post> posts) {
-                        try {
-                            sub.onNext(posts);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            sub.onError(e);
-                        }
-                        try {
-                            if (hasNext()) getNext();
-                            else sub.onCompleted();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            sub.onCompleted();
-                        }
-                    }
-
-                    @Override
-                    public void onException(Throwable throwable) {
-                        sub.onError(throwable);
-                    }
-                });
-            }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
-            }
-        }
-
-        // assert(finalType != null && entityId != null);
-            if (activity != null) {
-            return Observable.<List<Post>>create(sub -> {
-                    activity.runOnUiThread(() -> {
-                        simpleFacebook.getPosts(entityId, finalType, new OnPostsListener() {
-                            @Override
-                            public void onComplete(List<Post> posts) {
-                                sub.onNext(posts);
-                                if (hasNext()) getNext();
-                                else sub.onCompleted();
-                            }
-                            @Override
-                            public void onException(Throwable throwable) {
-                                sub.onError(throwable);
-                            }
-                        });
-                    });
-                }).flatMap(Observable::from);
-            } else {
-        return Observable.<List<Post>>create(sub -> {
-            simpleFacebook.getPosts(entityId, finalType, new OnPostsListener() {
-                @Override
-                public void onComplete(List<Post> posts) {
-                    sub.onNext(posts);
-                    if (hasNext()) getNext();
-                    else sub.onCompleted();
-                }
-
-                @Override
-                public void onException(Throwable throwable) {
-                    sub.onError(throwable);
-                }
-            });
-        }).flatMap(Observable::from).subscribeOn(AndroidSchedulers.mainThread());
-            }
+        return getPosts(simpleFacebook, entityId, (Post.PostType) null, (Activity) null, (Date) null, (Date) null);
     }
 
     /**
@@ -577,7 +469,94 @@ public class FacebookObservable {
      * @return
      */
     public static Observable<Post> getPosts(SimpleFacebook simpleFacebook, Post.PostType type) {
-        return getPosts(simpleFacebook, null, null, null);
+        return getPosts(simpleFacebook, (String) null, (Post.PostType) null, (Activity) null, (Date) null, (Date) null);
+    }
+
+    /**
+     *
+     * @param simpleFacebook
+     * @param entityId Profile Event Group Page
+     * @param type
+     * @return
+     */
+    public static Observable<Post> getPosts(SimpleFacebook simpleFacebook, String entityId, Post.PostType type, Activity activity, Date since, Date until) {
+        if (type == null) type = Post.PostType.POSTS;
+        final Post.PostType finalType = type;
+
+        if (entityId == null) {
+            if (activity != null) {
+                return Observable.<List<Post>>create(sub -> {
+                    activity.runOnUiThread(() -> {
+                        simpleFacebook.getPosts(finalType, new OnPostsListener() {
+                            @Override
+                            public void onComplete(List<Post> posts) {
+                                try {
+                                    sub.onNext(posts);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    sub.onError(e);
+                                }
+                                try {
+                                    if (hasNext()) getNext();
+                                    else sub.onCompleted();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                    sub.onCompleted();
+                                }
+                            }
+
+                            @Override
+                            public void onException(Throwable throwable) {
+                                sub.onError(throwable);
+                            }
+                        }, since, until);
+                    });
+                }).flatMap(Observable::from);
+            } else {
+                return Observable.defer(() -> Observable.<List<Post>>create(sub -> {
+                    simpleFacebook.getPosts(finalType, new OnPostsListener() {
+                        @Override
+                        public void onComplete(List<Post> posts) {
+                            try {
+                                sub.onNext(posts);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                sub.onError(e);
+                            }
+                            try {
+                                if (hasNext()) getNext();
+                                else sub.onCompleted();
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                                sub.onCompleted();
+                            }
+                        }
+
+                        @Override
+                        public void onException(Throwable throwable) {
+                            sub.onError(throwable);
+                        }
+                    }, since, until);
+                }).flatMap(Observable::from)).subscribeOn(AndroidSchedulers.mainThread());
+            }
+        }
+
+        // assert(finalType != null && entityId != null);
+        return Observable.defer(() -> Observable.<List<Post>>create(sub -> {
+            simpleFacebook.getPosts(entityId, finalType, new OnPostsListener() {
+                @Override
+                public void onComplete(List<Post> posts) {
+                    sub.onNext(posts);
+                    if (hasNext()) getNext();
+                    else sub.onCompleted();
+                }
+
+                @Override
+                public void onException(Throwable throwable) {
+                    sub.onError(throwable);
+                }
+            }, since, until);
+        }).flatMap(Observable::from)).subscribeOn(AndroidSchedulers.mainThread());
     }
 
     /**
