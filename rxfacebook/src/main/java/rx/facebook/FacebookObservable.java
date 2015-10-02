@@ -845,4 +845,34 @@ public class FacebookObservable {
                     });
         });
     }
+
+    public Observable<Void> logout(Activity activity) {
+        return logout(SimpleFacebook.getInstance(activity), activity);
+    }
+
+    public Observable<Void> logout(SimpleFacebook simpleFacebook) {
+        return logout(simpleFacebook, null);
+    }
+
+    private Observable<Void> logout(SimpleFacebook simpleFacebook, Activity activity) {
+        return Observable.<Void>create(sub -> {
+            simpleFacebook.logout(new OnLogoutListener() {
+                @Override
+                public void onThinking() {
+                }
+                @Override
+                public void onException(Throwable throwable) {
+                    sub.onError(throwable);
+                }
+                @Override
+                public void onFail(String reason) {
+                    sub.onError(new RuntimeException(reason));
+                }
+                @Override
+                public void onLogout() {
+                    sub.onNext(null);
+                }
+            });
+        });
+    }
 }
