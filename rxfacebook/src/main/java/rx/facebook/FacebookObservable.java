@@ -792,4 +792,57 @@ public class FacebookObservable {
             });
         });
     }
+
+    //public void requestNewPermissions(Permission[] permissions, boolean showPublish, OnNewPermissionsListener onNewPermissionsListener) {
+    public static Observable<String> requestNewReadPermissions(SimpleFacebook simpleFacebook, Activity activity, /* @ReadPermissions */ final Permission[] permissions) {
+        // TODO: check non-publish permissions
+        return requestNewPermissions(simpleFacebook, activity, permissions, false);
+    }
+
+    public static Observable<String> requestNewPublishPermissions(SimpleFacebook simpleFacebook, Activity activity, /* @Permissions */ final Permission[] permissions) {
+        return requestNewPermissions(simpleFacebook, activity, permissions, true);
+    }
+
+    public static class RejectException extends RuntimeException {
+        private Permission.Type type;
+
+        RejectException(Permission.Type type) {
+            this.type = type;
+        }
+
+        public Permission.Type type() {
+            return type;
+        }
+    }
+
+    private static Observable<String> requestNewPermissions(SimpleFacebook simpleFacebook, Activity activity, final Permission[] permissions, boolean showPublish) {
+        return Observable.create(sub -> {
+            simpleFacebook.requestNewPermissions(permissions, showPublish,
+                    new OnNewPermissionsListener() {
+                        @Override
+                        public void onSuccess(String accessToken, List<Permission> declinedPermissions) {
+                            sub.onNext(accessToken);
+                        }
+
+                        @Override
+                        public void onNotAcceptingPermissions(Permission.Type type) {
+                            sub.onError(new RejectException(type));
+                        }
+
+                        @Override
+                        public void onThinking() {
+                        }
+
+                        @Override
+                        public void onException(Throwable throwable) {
+                            sub.onError(throwable);
+                        }
+
+                        @Override
+                        public void onFail(String reason) {
+                            sub.onError(new RuntimeException(reason));
+                        }
+                    });
+        });
+    }
 }
