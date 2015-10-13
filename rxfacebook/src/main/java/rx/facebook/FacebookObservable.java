@@ -846,15 +846,15 @@ public class FacebookObservable {
         });
     }
 
-    public Observable<Void> logout(Activity activity) {
+    public static Observable<Void> logout(Activity activity) {
         return logout(SimpleFacebook.getInstance(activity), activity);
     }
 
-    public Observable<Void> logout(SimpleFacebook simpleFacebook) {
+    public static Observable<Void> logout(SimpleFacebook simpleFacebook) {
         return logout(simpleFacebook, null);
     }
 
-    private Observable<Void> logout(SimpleFacebook simpleFacebook, Activity activity) {
+    private static Observable<Void> logout(SimpleFacebook simpleFacebook, Activity activity) {
         return Observable.<Void>create(sub -> {
             simpleFacebook.logout(new OnLogoutListener() {
                 @Override
@@ -874,5 +874,35 @@ public class FacebookObservable {
                 }
             });
         });
+    }
+
+    public static Observable<Comment> comments(Activity activity, String entityId) {
+        return comments(SimpleFacebook.getInstance(activity), activity, entityId);
+    }
+
+    public static Observable<Comment> comments(SimpleFacebook simpleFacebook, String entityId) {
+        return comments(simpleFacebook, null, entityId);
+    }
+
+    private static Observable<Comment> comments(SimpleFacebook simpleFacebook, Activity activity, String entityId) {
+        return Observable.<List<Comment>>create(sub -> {
+            simpleFacebook.getComments(entityId, new OnCommentsListener() {
+                @Override
+                public void onThinking() {
+                }
+                @Override
+                public void onException(Throwable throwable) {
+                    sub.onError(throwable);
+                }
+                @Override
+                public void onFail(String reason) {
+                    sub.onError(new RuntimeException(reason));
+                }
+                @Override
+                public void onComplete(List<Comment> comments) {
+                    sub.onNext(comments);
+                }
+            });
+        }).flatMap(Observable::from);
     }
 }
