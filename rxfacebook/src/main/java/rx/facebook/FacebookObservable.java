@@ -822,6 +822,7 @@ public class FacebookObservable {
                         @Override
                         public void onSuccess(String accessToken, List<Permission> declinedPermissions) {
                             sub.onNext(accessToken);
+                            sub.onCompleted();
                         }
 
                         @Override
@@ -871,6 +872,7 @@ public class FacebookObservable {
                 @Override
                 public void onLogout() {
                     sub.onNext(null);
+                    sub.onCompleted();
                 }
             });
         });
@@ -901,6 +903,7 @@ public class FacebookObservable {
                 @Override
                 public void onComplete(List<Comment> comments) {
                     sub.onNext(comments);
+                    sub.onCompleted();
                 }
             });
         }).flatMap(Observable::from);
