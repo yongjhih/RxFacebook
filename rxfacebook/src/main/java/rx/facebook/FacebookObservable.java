@@ -908,4 +908,37 @@ public class FacebookObservable {
             });
         }).flatMap(Observable::from);
     }
+
+    // TODO getProfile(simplefacebook, activity);
+    // TODO getProfile(simplefacebook, activity, properties);
+    // TODO getProfile(simplefacebook, activity, properties, profileId);
+    public static Observable<Profile> getProfile(Activity activity) {
+        return getProfile(SimpleFacebook.getInstance(activity));
+    }
+
+    public static Observable<Profile> getProfile(SimpleFacebook simpleFacebook) {
+        return Observable.create(sub -> {
+            simpleFacebook.getProfile(new OnProfileListener() {
+                @Override
+                public void onComplete(Profile profile) {
+                    sub.onNext(profile);
+                    sub.onCompleted();
+                }
+
+                @Override
+                public void onException(Throwable throwable) {
+                    sub.onError(throwable);
+                }
+
+                @Override
+                public void onFail(String reason) {
+                    sub.onError(new RuntimeException(reason));
+                }
+
+                @Override
+                public void onThinking() {
+                }
+            });
+        });
+    }
 }
